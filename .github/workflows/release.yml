@@ -45,7 +45,7 @@ jobs:
       - name: Stage resource
         run: |
           mkdir -p dist/sd-phone/web
-          cp fxmanifest.lua README.md dist/sd-phone/
+          cp fxmanifest.lua README.md LICENSE dist/sd-phone/
           cp -r bridge client server shared configs locales images media-server dist/sd-phone/
           cp -r web/build dist/sd-phone/web/build
 
@@ -76,9 +76,9 @@ jobs:
       - name: Zip
         run: |
           cd dist
-          zip -qr ../sd-phone.zip sd-phone
+          zip -qr ../sd-phone-${TAG}.zip sd-phone
 
       - name: Attach to release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${TAG}" sd-phone.zip --clobber
+        run: gh release upload "${TAG}" sd-phone-${TAG}.zip --clobber
