@@ -105,6 +105,9 @@ inventory.add = chooseAdd()
 ---Every path answers 0, never nil, when the player or item can't be resolved.
 ---@return fun(source: number, item: string): number
 local function chooseCount()
+    if framework.name == 'mz' then
+        return function(src, item) return exports.mz_sd_bridge:CountItem(src, item) end
+    end
     if ON_LAYER then return function(src, item) return exports[LAYER]:GetItemCount(src, item) or 0 end end
     if active == OX then
         return function(src, item)
@@ -279,6 +282,9 @@ inventory.canCarry = chooseCanCarry()
 ---per-item export ('phone' -> 'usePhone'); with no path at all, registration errors at boot.
 ---@return fun(item: string, cb: fun(source: number, item?: any, inv?: table, slot?: any, data?: any)): nil
 local function chooseRegisterUsable()
+    if framework.name == 'mz' then
+        return function(item, cb) return exports.mz_sd_bridge:RegisterUsableItem(item, cb) end
+    end
     -- ai-core keeps the registration itself and hands it to whichever inventory is active, so it
     -- survives an inventory restart. The handler gets (source, { name, slot, count, metadata }).
     if ON_LAYER then

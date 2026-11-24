@@ -393,6 +393,8 @@ local ND_CITIZEN_COLS = 'charid, firstname, lastname, dob, gender, phonenumber, 
 function records.getCitizen(cid)
     if type(cid) ~= 'string' or cid == '' then return nil end
 
+    if framework.name == 'mz' then return require('bridge.server.mz_bridge').citizen(cid) end
+
     if aicore then return aiCitizens({ cid })[1] end
 
     if framework.qb then

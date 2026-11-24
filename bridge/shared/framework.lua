@@ -17,6 +17,9 @@
 ---AI Core provides qbx_core, qb-core and es_extended, so it is detected inside the QBox branch.
 ---@return FrameworkInfo|nil
 local function detect()
+    if GetResourceState('mz_sd_bridge') == 'started' then
+        return { name = 'mz', qb = false }
+    end
     if GetResourceState('ND_Core') == 'started' then
         return { name = 'nd', qb = false }
     end

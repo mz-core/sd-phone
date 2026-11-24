@@ -965,6 +965,8 @@ function garages.activeSystem() return ACTIVE end
 function garages.list(source)
     if not G.Enabled then return {} end
 
+    if framework.name == 'mz' then return require('bridge.server.mz_bridge').vehicles(source) end
+
     local id = player.getRealIdentifier(source)
     if not id then return {} end
 
@@ -1061,6 +1063,8 @@ end
 ---@return table|nil vehicle { row, status, model, props, plate }
 function garages.vehicleFor(source, plate)
     if not G.Enabled then return nil end
+
+    if framework.name == 'mz' then return nil end
 
     local id   = player.getRealIdentifier(source)
     local want = normPlate(plate)
@@ -1164,6 +1168,10 @@ end
 ---@param source number caller server id
 ---@return table report
 function garages.diagnose(source)
+    if framework.name == 'mz' then
+        local rows = require('bridge.server.mz_bridge').vehicles(source)
+        return { system = 'mz_vehicles', table = 'export', rows = #rows, garages = 0, columns = {} }
+    end
     local id   = player.getRealIdentifier(source)
     local rows = id and ownedRows(id) or {}
 

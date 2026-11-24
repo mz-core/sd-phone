@@ -13,6 +13,11 @@ local player = {}
 ---raises an error.
 ---@return fun(source: number): any|nil
 local function chooseGet()
+    if framework.name == 'mz' then
+        return function(src)
+            return exports.mz_sd_bridge:GetPlayer(src)
+        end
+    end
     if framework.name == 'qbx' then
         return function(src) return exports.qbx_core:GetPlayer(src) end
     end
@@ -45,6 +50,7 @@ function player.get(source) return resolveGet(source) end
 ---Pick the framework's "extract identifier from player object" call once at module load.
 ---@return fun(p: any): string|nil
 local function chooseIdentifier()
+    if framework.name == 'mz' then return function(p) return p.citizenid end end
     if framework.qb then
         return function(p) return p.PlayerData.citizenid end
     end
@@ -121,6 +127,7 @@ local generation = 0
 ---@param source number player server id
 ---@return string|nil
 local function cachedIdentifier(source)
+    if framework.name == 'mz' then return resolveCid(source) end
     local hit = identityCache[source]
     if hit and (GetGameTimer() - hit.at) < (hit.cid and IDENTITY_TTL or NEGATIVE_TTL) then return hit.cid end
     local cid = resolveCid(source)
@@ -199,6 +206,11 @@ local function resolveName(source)
     local p = resolveGet(source)
     if not p then return 'Unknown' end
 
+    if framework.name == 'mz' then
+        local info = p.charinfo or {}
+        return ('%s %s'):format(info.firstname or '', info.lastname or '')
+    end
+
     if framework.name == 'esx'  then return p.getName() end
     if framework.qb then
         return ('%s %s'):format(p.PlayerData.charinfo.firstname, p.PlayerData.charinfo.lastname)
@@ -225,6 +237,7 @@ end
 ---@param source number player server id
 ---@return string
 function player.getName(source)
+    if framework.name == 'mz' then return resolveName(source) end
     local hit = nameCache[source]
     if hit and (GetGameTimer() - hit.at) < IDENTITY_TTL then return hit.name end
     local name = resolveName(source)
@@ -347,7 +360,7 @@ local cidMapCache = { map = nil, at = 0, gen = -1 }
 ---treat it as read-only, which every caller already does.
 ---@return table<string, number>
 local function buildCidMap()
-    if cidMapCache.map and cidMapCache.gen == generation
+    if framework.name ~= 'mz' and cidMapCache.map and cidMapCache.gen == generation
         and (GetGameTimer() - cidMapCache.at) < IDENTITY_TTL then
         return cidMapCache.map
     end
